@@ -1,4 +1,11 @@
-
+/* ########################
+##
+## Maintainer: Leonard Mada
+##
+## Previous work:
+## 1. BSc Adrian Ivan
+##    Improved and extended the previous work
+*/
 
 NumericVector heightChannel(IntegerVector xStart, NumericVector m,
 		const int nRows, const int nCols,
@@ -27,6 +34,7 @@ NumericVector heightChannel(IntegerVector xStart, NumericVector m,
 			// Sub-Channel:
 			int nStart = nr0;
 			m[offsetCol + nStart] = idLevel;
+			// walk until block
 			while(nStart > 0) {
 				if(m[offsetCol + nStart - 1] == 0)  {
 					nStart --;
