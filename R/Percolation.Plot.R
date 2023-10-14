@@ -141,3 +141,20 @@ plot.minCut = function(m, id, col = "#1624C0", col.part = "#F0F000") {
 	plot.rs(img);
 }
 
+### Mark points
+# dp = (width, height) of bounding-box;
+points.percol = function(xy, m, col = "#0064F0", fill=TRUE, dp = c(3,3)) {
+	dx = (dp[1] - 1)/2;
+	dy = (dp[2] - 1)/2;
+	if(is.null(fill)) {
+		dx = c(-dx, dx);
+		dy = c(-dy, dy);
+	} else {
+		dx = seq(-dx, dx, by = if(dx >= 0) 1 else -1);
+		dy = seq(-dy, dy, by = if(dy >= 0) 1 else -1);
+	}
+	r = toRaster(m);
+	p = expand.grid(xy[1] + dx, xy[2] + dy);
+	r[p[,1], p[,2]] = col;
+	return(invisible(r));
+}
