@@ -572,3 +572,44 @@ minCut = function(m, id) {
     return (lst);
 }
 
+### Center
+center.percol = function(m, id) {
+	nd = dim(m);
+	if(any(nd == 0)) return(c(0,0));
+	x = 0; y = 0; n = 0;
+	for(nc in seq(nd[2])) {
+		idCl = which(m[,nc] == id);
+		len  = length(idCl);
+		n = n + len;
+		x = x + sum(idCl);
+		y = y + len * nc;
+	}
+	xy = c(x, y) / n;
+	attr(xy, "len") = n;
+	attr(xy, "id")  = id;
+	return(xy);
+}
+
+### Radius of Gyration
+radius.gyr = function(m, center, id = NULL, do.sqrt = FALSE) {
+	nd = dim(m);
+	if(any(nd == 0)) return(c(0,0));
+	if(is.null(id)) {
+		id = attr(center, "id");
+		if(is.null(id)) stop("Cluster id is missing!");
+	}
+	x = 0; y = 0; n = 0;
+	for(nc in seq(nd[2])) {
+		idCl = which(m[,nc] == id);
+		len  = length(idCl);
+		n = n + len;
+		x = x + sum((idCl - center[1])^2);
+		y = y + len * (nc - center[2])^2;
+	}
+	x = x/n; y = y/n;
+	r = x + y;
+	if(do.sqrt) r = sqrt(r);
+	attr(r, "comp") = data.frame(x=x, y=y, len=len, isSqrt = do.sqrt);
+	return(r);
+}
+
