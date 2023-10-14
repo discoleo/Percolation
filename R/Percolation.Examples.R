@@ -2,7 +2,7 @@
 ###
 ### Maintainer: Leonard Mada
 ###
-###	Previous work:
+### Previous work:
 ### 1. BSc Adrian Ivan
 ### Improved and extended the previous work
 ### 2. Initial version: Leonard Mada

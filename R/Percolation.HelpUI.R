@@ -10,9 +10,7 @@
 
 # Based on Previous Projects (2020-2022)
 
-helper = function(id = "Help1"){
-
-
+helper = function(id = "Help1") {
 
 	txtHelp = list(
 		"Simple Model" = list(
@@ -32,7 +30,7 @@ helper = function(id = "Help1"){
 			P = c("Probability Cutoff = the value above which the grid points become pores and below which they become solid material.",
 				"Probability of Column Change = probability that the values in the subsequent columns are regenerated",
 				"Type: Constant = a constant number of values are regenerated in each column;",
-				"Type: Bernouly = the number of values which are regenerated varies in each column according
+				"Type: Bernoulli = the number of values which are regenerated varies in each column according
 				to a Poisson process with λ = pChange.")),
 		
 		"Binary Correlated Model" = list(
@@ -45,9 +43,9 @@ helper = function(id = "Help1"){
 				the grid points become pores and below which they become solid material.",
 		
 			P = c("Probability Cutoff = the value above which the grid points become pores and below which they become solid material.",
-				"Probability of Column Change = probability that the values in the subsequent colum is the state of the previous column or is inverted.",
+				"Probability of Column Change = probability that the values in the subsequent column is the state of the previous column or is inverted.",
 				"Type: Constant = a constant number of values are regenerated in each column;",
-				"Type: Bernouly = the number of values which are regenerated varies in each column according
+				"Type: Bernoulli = the number of values which are regenerated varies in each column according
 				to a Poisson process with λ = pChange.")),
 		
 		"Details" = list(
@@ -63,7 +61,7 @@ helper = function(id = "Help1"){
 		"Linear Channel" = list(
 			txt = "The Linear channels process generates a specified number of linear channels separated 
 				by straight walls. Each channel can be either patent or blocked by one or more blocks. 
-				Neighbouring channels can communicate through pores through the channel walls.",
+				Neighboring channels can communicate through pores through the channel walls.",
 				
 			P = c("Probability Cutoff = the value above which the grid points become pores and below which they become solid material.",
 				"Pore probability = the average number of pores in each channel wall; the number 
