@@ -1,7 +1,12 @@
 ########################
 ###
-### Leonard Mada
-### [the one and only]
+### Maintainer: Leonard Mada
+###
+###	Previous work:
+### 1. BSc Adrian Ivan
+### Improved and extended the previous work
+### 2. Initial version: Leonard Mada
+### Project for students: 2020-2022
 ###
 ### Percolation: Examples
 ###
@@ -114,15 +119,14 @@ a0; a1; a1 / a0;
 
 ### Ex 2:
 dims = c(80, 80)
-p = 0.4
+p = 0.42
 
 m = sample(c(-1, 0), prod(dims), replace=T, prob=c(p, 1-p))
 m = matrix(m, nrow=dims[1])
-m[1:10, 1:10]
 
 m = flood.all(m)
 
-m[1:10, 1:10]
+which.percol(m)
 
 table(m)
 table(m[,dims[2]])

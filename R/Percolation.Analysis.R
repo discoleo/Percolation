@@ -1,7 +1,12 @@
 ########################
 ###
-### Leonard Mada
-### [the one and only]
+### Maintainer: Leonard Mada
+###
+###	Previous work:
+### 1. BSc Adrian Ivan
+### Improved and extended the previous work
+### 2. Initial version: Leonard Mada
+### Project for students: 2020-2022
 ###
 ### Percolation
 ### Analysis
@@ -67,6 +72,23 @@ flood.all = function(m, type="Col1", val0=0, id.start, debug=TRUE) {
 	class(m) = c(class(m), if(type == 1) "filled" else "filledAll");
 	invisible(m)
 }
+
+
+flood.rev = function(x, id.start=NULL) {
+	if(is.null(id.start)) {
+		id.start = max(x[,1]) + 1;
+	}
+	dim = dim(x);
+	x = rev(x);
+	x = array(x, dim);
+	# Flood from "right"
+	x = flood.all(x, id.start=id.start);
+	#
+	x = rev(x);
+	x = array(x, dim);
+	return(x);
+}
+
 
 ### Path Length
 length.path = function(m, id, debug=TRUE) {
@@ -374,5 +396,179 @@ diffusion.dynamic = function(m, id, iter=40, val0 = 1.0, debug=TRUE) {
 	if(id != 0) p.m[m == 0] =  0;
 	p.m[p.m < 0 & m > 0] =  0; # other non-connected "paths";
 	return(p.m);
+}
+
+surface.contact = function(x, id, val = -1) {
+	m = select.subgrid(x, id, pad.val = val - 1);
+	nrSel = nrow(m);
+	idSel = which(m == id);
+	idSel = c(idSel - nrSel, idSel - 1, idSel + 1, idSel + nrSel);
+	idSel = sort(idSel);
+	countSurface = sum(m[idSel] == val);
+	return(countSurface);
+}
+
+
+# x = matrix with highlighted channels (e.g. processed using flood.all);
+# id = id of channel;
+as.surface.contact = function(x, id, val = -1) {
+	m = select.subgrid(x, id, pad.val = val - 1);
+	nrSel = nrow(m);
+	idSel = which(m == id);
+	idSel = c(idSel - nrSel, idSel - 1, idSel + 1, idSel + nrSel);
+	idSel = sort(unique(idSel));
+	isSurface = (m[idSel] == val);
+	mmSurface = array(FALSE, dim(m));
+	mmSurface[idSel][isSurface] = TRUE;
+	mmSurface = mmSurface[ - c(1, nrow(m)), - c(1, ncol(m))];
+	nrSelLim = attr(m, "nr");
+	isPadded = attr(m, "pad");
+	nc  = ncol(x);
+	mm0 = array(FALSE, c(nrSelLim[1] - 1, nc));
+	mm1 = array(FALSE, c(nrow(x) - nrSelLim[2], nc));
+	mmSurface = rbind(mm0, mmSurface, mm1);
+	invisible(mmSurface);
+}
+
+### Total Length
+length.channel.linear = function(m, d=1, drop.pores=TRUE, rm.id = c(-1,0)) {
+	if(d < 1) stop("Invalid Diameter!");
+	rm.ids = function(tbl) {
+		ids = as.integer(names(tbl));
+		keep = ! (ids %in% rm.id);
+		ids = ids[keep];
+		tbl = tbl[keep];
+		return(data.frame(id=ids, Len = as.numeric(tbl)));
+	}
+	# Area Channels:
+	area = table(m);
+	area = rm.ids(area);	
+	# Area Pores:
+	id.row.walls = seq(1, nrow(m), by = d + 1);
+	area.pores = table(m[id.row.walls, ]);
+	area.pores = rm.ids(area.pores);
+	#
+	ids.diff = setdiff(area$id, area.pores$id);
+	if(length(ids.diff) > 0) {
+		tmp = data.frame(id = ids.diff, Len = 0);
+		area.pores = rbind(area.pores, tmp);
+	}
+	names(area.pores)[2] = "LenPores";
+	area = merge(area, area.pores, by = "id");
+	area$Len = area$Len - area$LenPores;
+	if(d != 1) area$Len = area$Len / d;
+	if(drop.pores) {
+		idPores = match("LenPores", names(area));
+		area = area[, - idPores];
+	}
+	area$Len = as.integer(area$Len)
+	return(area);
+}
+
+height.channel = function(m, id, val=-1, verbose = TRUE) {
+	tmp = select.subgrid(m, id=id, pad.val = val - 1);
+	colnames(tmp) = NULL;
+	nrows0  = attr(tmp, "nr");
+	nStart  = which(tmp[,2] == id);
+	idStart = nrows0[1] + nStart - 1; # Original rows;
+	isChannel = idStart %% 2 == 1;
+	nStart = nStart[isChannel];
+	if(verbose) print(nStart);
+	tmp[tmp > 0] = 0;
+	tmp = t(tmp);
+	dim = dim(tmp);
+	# nStart = (nStart - 1) * dim[1] + 1;
+	tmp = heightChannel(nStart, tmp, dim[1], dim[2]);
+	tmp = array(tmp, dim);
+	tmp = t(tmp);
+	tmp = tmp[- c(1, nrow(tmp)), - c(1, ncol(tmp)), drop=FALSE];
+	attr(tmp, "nr") = nrows0;
+	invisible(tmp);
+}
+
+height.channel.all = function(m, verbose = FALSE, val=-1) {
+	m[m > 0] = 0;
+	m = t(m);
+	dim  = dim(m);
+	padx = rep(val - 1, dim[2]);
+	pady = rep(val - 1, dim[1] + 2);
+	m = rbind(padx, m, padx);
+	m = cbind(pady, m, pady);
+	dim = dim + 2;
+	nStart = seq(3, dim[2] - 1, by=2);
+	m = heightChannel(nStart, m, dim[1], dim[2], verbose=verbose);
+	dim = dim - 1;
+	m = m[2:dim[1], 2:dim[2]];
+	m = t(m);
+	invisible(m);
+}
+
+height.channel.debug = function(m, verbose = FALSE, val=-1) {
+	ids = unique(m[,1]);
+	ids = ids[ids > 0];
+	if(verbose) print(ids);
+	r = m;
+	r[r > 0] = 0; # required for Ideal Pores;
+	for(id in ids) {
+		tmp = height.channel(m, id=id, val=val, verbose=verbose);
+		nrs = attr(tmp, "nr");
+		isVal = tmp > 0;
+		r[seq(nrs[1], nrs[2]), ][isVal] = tmp[isVal];
+	}
+	invisible(r);
+}
+
+
+analyse.Channels = function(x) {
+	ids = which.channels(x);
+
+
+	result = data.frame(
+		Channels = c("Left", "Percolating", "Right"),  
+		Number = c(length(ids$L), length(ids$P), length(ids$R)));
+}
+
+
+analyse.Area = function(x) {
+	count = table(x)
+	idVal = as.integer(names(count))
+
+	areas = data.frame(ID = idVal,
+						Area = unclass(count))
+
+	ids = which.channels(x);
+	
+
+	countGroup = function(id) {
+		isGroup = which(idVal %in% id);
+		sum(count[isGroup]);
+	}
+
+	result = c(countGroup(-1), countGroup(0), 
+			countGroup(ids$L), countGroup(ids$P), countGroup(ids$R));
+	result = data.frame(
+			Group = c("Blocks", "Free", "Left", "Percolating", "Right"),
+			Area = result);
+
+
+	return(result);
+}
+
+minCut = function(m, id) {
+    graph = as.graph.percol(m, id = id);
+    idE = attr(graph, "entry");
+    idC = min_cut(graph, source = idE[1], target = idE[2], value.only = FALSE);
+    edge = as.integer(idC$cut);
+    ids = get.edgelist(graph)[edge,];
+    idEntry = which(ids %in% idE); # Graph Entry
+    if(length(idEntry) > 0) {
+  	  print("Min-Cut: Graph Entry!");
+  	  ids = ids[ - idEntry];
+    }
+    idN = which.neighbors(m, ids);
+    print(paste0("Finished Neighbours: ", length(idN))); # for DEBUG
+    lst = list(value = idC$value, nodes = idC$cut, neighbors = idN,
+  	  part = prune.part(idC$partition2, idE));
+    return (lst);
 }
 

@@ -1,7 +1,12 @@
 ########################
 ###
-### Leonard Mada
-### [the one and only]
+### Maintainer: Leonard Mada
+###
+###	Previous work:
+### 1. BSc Adrian Ivan
+### Improved and extended the previous work
+### 2. Initial version: Leonard Mada
+### Project for students: 2020-2022
 ###
 ### Percolation
 ### Graphical Functions
@@ -116,5 +121,23 @@ split.rs = function(m, n=5, from=1, max.len=5, w=10) {
 	# TODO: Case from < 0; (but may already work)
 	attr(m2, "split") = list(n=n, from=from, max.len=max.len, w=w);
 	invisible(m2);
+}
+
+# Plot border around Channel
+plot.surface = function(m, id, col = "#1624C0") {
+	csf = as.surface.contact(m, id = id);
+	img = toRaster(m);
+	img[csf] = col;
+	plot.rs(img);
+}
+
+plot.minCut = function(m, id, col = "#1624C0", col.part = "#F0F000") {
+	npos = minCut(m, id)
+	img = toRaster(m);
+	img[npos$neighbors] = col;
+	if( ! is.null(col.part)){
+		img[npos$part] = col.part;
+	}
+	plot.rs(img);
 }
 

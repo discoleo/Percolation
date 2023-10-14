@@ -1,7 +1,12 @@
 ########################
 ###
-### Leonard Mada
-### [the one and only]
+### Maintainer: Leonard Mada
+###
+###	Previous work:
+### 1. BSc Adrian Ivan
+### Improved and extended the previous work
+### 2. Initial version: Leonard Mada
+### Project for students: 2020-2022
 ###
 ### Percolation
 ###
@@ -158,7 +163,7 @@ rblock.gen = function(n, block.dim, min=0, max, prob, val=-1) {
 }
 
 # ppore, pblock = Poisson distributions;
-rliniar.gen = function(n, w, d, ppore=3, pblock=0.5, val=-1) {
+rliniar.gen = function(n, w, d=5, ppore=3, pblock=0.5, val=-1) {
 	# n = no. of channels;
 	# w = width of material/grid; d = width of channel;
 	nc = d*n+n+1;
@@ -184,6 +189,134 @@ rliniar.gen = function(n, w, d, ppore=3, pblock=0.5, val=-1) {
 	
 	return(t(m));
 }
+
+
+rgrid.channel.poisson = function(n, w, d=3, ppore=6, pBlock=4, 
+						type = c("Poisson", "Constant", "0:n", "1:n"), val=-1) {
+	# n = no. of channels;
+	# w = width of material/grid; d = width of channel;
+	type = match.arg(type);
+	nc = d*n+n+1;
+	m = matrix(0, nrow=w, ncol=nc);
+	# Channel walls
+	idChW = seq(1, nc, by = d + 1)
+	m[, idChW] = val;
+	# add Pores
+	npores = rpois(length(idChW), ppore)
+	xwidth = seq(w);
+	for(id in seq(n+1)) {
+		xPore = sample(xwidth, npores[id])
+		m[xPore, idChW[id]] = runif(npores[id]);
+	}
+	# block Channels
+	if(type == "Poisson"){
+		nBlock = rpois(n, pBlock)
+	}
+	else if (type == "Constant") {
+	   	nBlock = rep(pBlock, n)
+	}
+	else if (type == "0:n") {
+	   	nBlock = sample(0:pBlock, n, replace = TRUE)
+	}
+	else if (type == "1:n") {
+	   	nBlock = sample(1:pBlock, n, replace = TRUE)
+	}
+	for(id in seq(n)) {
+		if(nBlock[id] == 0) next;
+		xBlock = sample(xwidth, nBlock[id]);
+		# (id-1)*(d+1)+1
+		m[xBlock, seq(idChW[id] + 1, length.out=d)] = val;
+	}
+	
+	return(t(m));
+}
+
+### Linearly (H) Correlated Process
+# TODO: types = "Poisson", "Initial";
+# - Initial = start always from Initial row;
+rgrid.unifCor = function(dim, pChange=1/2, type = c("Constant", "Bernoulli")) {
+	type = match.arg(type);
+	nr = dim[1]; nc = dim[2];
+	m = matrix(0, nrow=nr, ncol=nc);
+	# Column 1:
+	if(nr == 0 || nc == 0) return(m);
+	m[, 1] = runif(nr);
+	if(nc == 1) return(m);
+	# Subsequent columns
+	if(type == "Constant") {
+		nCh = round(nr * pChange);
+		ids = seq(1, nr);
+		tmp = m[, 1];
+		for(i in seq(2, nc)) {
+			id = sample(ids, nCh);
+			tmp[id] = runif(nCh);
+			m[, i]  = tmp;
+		}
+	} else {
+		tmp = m[, 1];
+		for(i in seq(2, nc)) {
+			ids = as.logical(rbinom(nr, 1, pChange));
+			tmp[ids] = runif(sum(ids));
+			m[, i] = tmp;
+		}
+	}
+	return(m)
+}
+
+### Binary Linear Correlation
+# - but Non-Linearly, Non-Monotonically Coupled Process;
+rgrid.correl = function(dim, pChange=1/3, type = c("Constant", "Bernoulli")) {
+	type = match.arg(type);
+	nr = dim[1]; nc = dim[2];
+	m = matrix(FALSE, nrow=nr, ncol=nc);
+	if(nr == 0 || nc == 0) return(m);
+	m[,1] = FALSE;
+	if(nc == 1) return(m);
+	# Subsequent Columns:
+	if(type == "Constant") {
+		nCh = round(nr * pChange);
+		ids = seq(1, nr);
+		for(i in seq(2, nc)) {
+			tmp = rep(FALSE, nr);
+			id  = sample(ids, nCh);
+			tmp[id] = ! tmp[id];
+			m[, i]  = tmp;
+		}
+	} else {
+		for(i in seq(2, nc)) {
+			tmp = rep(FALSE, nr);
+			ids = as.logical(rbinom(nr, 1, pChange));
+			tmp[ids] = ! tmp[ids];
+			m[, i] = tmp;
+		}
+	}
+	return(m);
+}
+
+as.grid.correl = function(x, m.cor, p, val=-1) {
+	nr = nrow(m.cor); nc = ncol(m.cor);
+	if(length(x) != nr) stop("Invalid dimensions of the carry-forward matrix!");
+	m = matrix(0, nrow=nr, ncol=nc);
+	if(nr == 0 || nc == 0) return(m);
+	m[x <= p, 1] = 1;
+	as.grid0 = function(m) {
+		m[m == 0] = val;
+		m[m > 0]  = 0;
+		return(m);
+	}
+	if(nc == 1) {
+		return(as.grid0(m));
+	}
+	# Subsequent Columns:
+	tmp = m[, 1];
+	for(i in seq(2, nc)) {
+		tmp[m.cor[, i]] = 1 - tmp[m.cor[, i]];
+		m[, i] = tmp;
+	}
+	return(as.grid0(m));
+}
+
+
 rlinwalk.gen = function(n, w, d, walk=c(-1,0,1), pwalk=c(1,2,1), ppore=3,
 		first.const=TRUE, duplicate.at=NULL, val=-1) {
 	# n = no. of channels; w = width of Material;
