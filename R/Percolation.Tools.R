@@ -2,7 +2,7 @@
 ###
 ### Maintainer: Leonard Mada
 ###
-###	Previous work:
+### Previous work:
 ### 1. BSc Adrian Ivan
 ### Improved and extended the previous work
 ### 2. Initial version: Leonard Mada
@@ -84,7 +84,7 @@ which.percolates.orAny = function(x) {
 }
 
 which.channels = function(x) {
-	nc = ncol(x);	# numar coloane
+	nc = ncol(x);
 	id1 = unique(x[, 1]);
 	id1 = id1[id1 > 0];
 	id3 = unique(x[, nc]);
@@ -193,8 +193,11 @@ select.subgrid = function(x, id, pad.val = -1) {
 	attr(m, "nr") = c(nrStart0, nrEnd0);
 	return(m);
 }
+
+# Expand diameter of Linear Channels
 expand.channel = function(m, d=3, d0=1) {
 	nr = nrow(m);
+	# Walls: c(1, d0+2, ...)
 	id.bl = seq(1, nr, by = d0 + 1);
 	last  = length(id.bl);
 	id.bn = id.bl[last];
