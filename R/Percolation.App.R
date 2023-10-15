@@ -32,7 +32,7 @@ source("Server.R")
 source("Percolation.R")
 source("Percolation.HelpUI.R")
 
-run = function(){
-    shinyApp(ui = ui, server = server, options = list(port = 9090))
+run = function(port = 9090) {
+    shinyApp(ui = ui, server = server, options = list(port = port))
 }
 

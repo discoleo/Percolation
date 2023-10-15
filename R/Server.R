@@ -135,10 +135,14 @@ server = function(input, output, session) {
 			return()
 		}
 		id = input$idDetails;
-		if(input$typeDetails == "Channel Length"){
+		if(input$typeDetails == "Channel Length") {
 			plot.rs(length.path(r, id))
-		}else if(input$typeDetails == "Border"){
+		} else if(input$typeDetails == "Border") {
 			plot.surface(r, id)
+		} else if(input$typeDetails == "Center") {
+			cp = center.percol(r, id);
+			p  = points.percol(round(cp), r);
+			plot.rs(p);
 		}
 		else {
 			plot.minCut(r, id)

@@ -19,21 +19,23 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4, textOutput("txtTitleSimple")) ),
 				fluidRow(
-						column(8, plotOutput("PercolationSimple")),
-						column(4,
-							column(12, fluidRow(tableOutput("Statistics"))),
-							column(12, fluidRow(tableOutput("Area"))),
-						)
+					column(8, plotOutput("PercolationSimple")),
+					column(4,
+						column(12, fluidRow(tableOutput("Statistics"))),
+						column(12, fluidRow(tableOutput("Area"))),
+					)
 				),
 				fluidRow(
-					column(4,
-						sliderInput(inputId = "probSimple", label = "Probability Cutoff",
-							value = 0.5, min = 0, max = 1, step = 0.01)
-					),
 					column(4,
 						sliderInput(inputId = "heightSimple", label = "Height",
 							value = 100, min = 100, max = 2000, step = 50)
 					),
+					column(4,
+						sliderInput(inputId = "probSimple", label = "Probability Cutoff",
+							value = 0.5, min = 0, max = 1, step = 0.01)
+					)
+				),
+				fluidRow(
 					column(4,
 						sliderInput(inputId = "widthSimple", label = "Width", 
 							value = 50, min = 20, max = 200, step = 10))
@@ -59,7 +61,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 							value = 100, min = 40, max = 400, step = 20)
 					),
 					column(4,
-						sliderInput(inputId = "pChangeLinearCorrelated", label = "Probability of Column Change",
+						sliderInput(inputId = "pChangeLinearCorrelated",
+							label = "Probability of Column Change",
 							value = 0.5, min = 0, max = 1, step = 0.01)
 					),
 					column(4,
@@ -130,7 +133,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 					column(4, selectInput(inputId = "modelDetails", label = "Model type",
 					c("Simple Model", "Linearly Correlated", "Binary Correlated"))),
 					column(4, selectInput(inputId = "typeDetails", label = "Analysis Type",
-					c("Channel Length" = "Channel Length", "Border" = "Border", "MinCut" = "MinCut"))),
+					c("Channel Length" = "Channel Length", "Border" = "Border",
+					"MinCut" = "MinCut", "Center" = "Center"))),
 					column(4, selectInput(inputId = "idDetails", label = "Channel ID",
 					c(1))),
 				),

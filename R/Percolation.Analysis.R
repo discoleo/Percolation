@@ -51,7 +51,7 @@ flood = function(m, pyx, val=1, val0=0) {
 	invisible(m);
 }
 
-flood.all = function(m, type="Col1", val0=0, id.start, debug=TRUE) {
+flood.all = function(m, type="Col1", val0=0, id.start, debug=FALSE) {
 	type = match(type, c("Col1", "All"))
 	if(is.na(type)) stop("Type NOT supported!")
 	ncols = if(type == 2) seq(ncol(m)) else 1;

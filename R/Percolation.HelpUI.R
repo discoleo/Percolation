@@ -61,7 +61,7 @@ helper = function(id = "Help1") {
 		"Linear Channel" = list(
 			txt = "The Linear channels process generates a specified number of linear channels separated 
 				by straight walls. Each channel can be either patent or blocked by one or more blocks. 
-				Neighboring channels can communicate through pores through the channel walls.",
+				Neighboring channels can communicate through pores through the lateral channel walls.",
 				
 			P = c("Probability Cutoff = the value above which the grid points become pores and below which they become solid material.",
 				"Pore probability = the average number of pores in each channel wall; the number 
