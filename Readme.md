@@ -57,3 +57,17 @@ Further development has been moved to this project:
 
 4. CRM: Jeremy Quastel: Polynuclear growth and the Toda lattice. (2022)
   > https://www.youtube.com/watch?v=yWcAEp_CvCM&list=PLHaWeIntAtAJ-isWJZxdMGAAicT3lBEtT&index=3
+
+
+### Random Patterns & Landscapes
+
+1. TK Remmel. Distributions of Hyper-Local Configuration Elements to Characterize, Compare, and Assess Landscape-Level Spatial Patterns. (2020)
+  > https://doi.org/10.3390/e22040420
+
+2. TK Remmel. An Incremental and Philosophically Different Approach to Measuring Raster Patch Porosity. (2018)
+  > https://doi.org/10.3390/su10103413
+
+
+3. Package ShapePattern: see Ref 1 & 2;
+  > https://cran.r-project.org/web/packages/ShapePattern/index.html
+
