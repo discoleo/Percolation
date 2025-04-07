@@ -140,11 +140,10 @@ server = function(input, output, session) {
 			if(nrow(r) > 120) r = split.rs(r);
 			plot.rs(r);
 		} else if(input$typeDetails == "Border") {
-			plot.surface(r, id)
+			plot.surface(r, id, split = nrow(r) > 120);
 		} else if(input$typeDetails == "Center") {
 			cp = center.percol(r, id);
-			p  = points.percol(round(cp), r);
-			if(nrow(p) > 120) p = split.rs(p);
+			p  = points.percol(round(cp), r, split = nrow(p) > 120);
 			plot.rs(p);
 		}
 		else {
