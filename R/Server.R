@@ -143,7 +143,7 @@ server = function(input, output, session) {
 			plot.surface(r, id, split = nrow(r) > 120);
 		} else if(input$typeDetails == "Center") {
 			cp = center.percol(r, id);
-			p  = points.percol(round(cp), r, split = nrow(p) > 120);
+			p  = points.percol(round(cp), r, split = nrow(r) > 120);
 			plot.rs(p);
 		}
 		else {

@@ -162,9 +162,17 @@ points.percol = function(xy, m, col = "#0064F0", fill=TRUE,
 		dx = seq(-dx, dx, by = if(dx >= 0) 1 else -1);
 		dy = seq(-dy, dy, by = if(dy >= 0) 1 else -1);
 	}
-	# TODO: split
-	r = toRaster(m);
 	p = expand.grid(xy[1] + dx, xy[2] + dy);
-	r[p[,1], p[,2]] = col;
+	# Raster:
+	if(split) {
+		r   = toRaster(split.rs(m));
+		msk = array(0, dim(m));
+		msk[p[,1], p[,2]] = 1;
+		msk = which(split.rs(msk) == 1);
+		r[msk] = col;
+	} else {
+		r = toRaster(m);
+		r[p[,1], p[,2]] = col;
+	}
 	return(invisible(r));
 }
