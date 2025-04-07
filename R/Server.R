@@ -20,6 +20,7 @@ server = function(input, output, session) {
 	output$txtTitleLinearLevels = renderText("Channel Levels")
 	output$txtTitleHelp = renderText("Help")
 	
+	### Grid Data
 	values = reactiveValues();
 	values$mSimple = NULL; # Material/Grid
 	values$rSimple = NULL;
@@ -29,9 +30,13 @@ server = function(input, output, session) {
 	values$rLinearCorrelated = NULL;
 	values$mBinaryCorrelated = NULL;
 	values$rBinaryCorrelated = NULL;
-
-
-
+	# Options
+	values$opt = list(splitH = 120);
+	
+	
+	### Grid/Material Generators
+	
+	### Simple
 	imageGeneratorSimple = reactive({
 		input$newSimple;
 		# print("Se executa")
@@ -65,8 +70,6 @@ server = function(input, output, session) {
 		values$mBinaryCorrelated = list(r = col1, mTransitions = m)
 	})
 	
-	
-
 
 	### Basic Model
 	output$PercolationSimple = renderPlot({
@@ -75,8 +78,8 @@ server = function(input, output, session) {
 		p = input$probSimple;
 		m = as.grid(m, p);
 		r = flood.all(m);
-		values$rSimple= r;
-		if(nrow(m) > 120) r = split.rs(r);
+		values$rSimple = r;
+		if(nrow(m) > values$opt$splitH) r = split.rs(r);
 		plot.rs(r);
 	})
 
@@ -99,24 +102,23 @@ server = function(input, output, session) {
 	
 
 	### Details
-
-
+	
 	# Update list of Percolating Channels
 	observe({
 		model = input$modelDetails;
 		if(model == "Simple Model") {
 			r = values$rSimple
 		} else if (model == "Linearly Correlated") {
-		   r = values$rLinearCorrelated
+			r = values$rLinearCorrelated;
 		} else {
-		   r = values$rBinaryCorrelated
+			r = values$rBinaryCorrelated;
 		}
 		if(is.null(r)){
 			return()
 		}
 		ids = which.percolates.orAny(r)
 		updateSelectInput(session, "idDetails",
-			choices = ids,
+			choices  = ids,
 			selected = head(ids, 1)
     	)
 	})
@@ -135,19 +137,20 @@ server = function(input, output, session) {
 			return();
 		}
 		id = input$idDetails;
+		doSplit = nrow(r) > values$opt$splitH;
 		if(input$typeDetails == "Channel Length") {
 			r = length.path(r, id);
-			if(nrow(r) > 120) r = split.rs(r);
+			if(doSplit) r = split.rs(r);
 			plot.rs(r);
 		} else if(input$typeDetails == "Border") {
-			plot.surface(r, id, split = nrow(r) > 120);
+			plot.surface(r, id, split = doSplit);
 		} else if(input$typeDetails == "Center") {
 			cp = center.percol(r, id);
-			p  = points.percol(round(cp), r, split = nrow(r) > 120);
+			p  = points.percol(round(cp), r, split = doSplit);
 			plot.rs(p);
 		}
 		else {
-			plot.minCut(r, id)
+			plot.minCut(r, id, split = doSplit);
 		}
 	})
 

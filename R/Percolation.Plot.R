@@ -139,12 +139,27 @@ plot.surface = function(m, id, col = "#1624C0", split = FALSE) {
 	plot.rs(img);
 }
 
-plot.minCut = function(m, id, col = "#1624C0", col.part = "#F0F000") {
-	npos = minCut(m, id)
-	img = toRaster(m);
-	img[npos$neighbors] = col;
-	if( ! is.null(col.part)){
-		img[npos$part] = col.part;
+plot.minCut = function(m, id, col = "#1624C0", col.part = "#F0F000", split = FALSE) {
+	npos = minCut(m, id);
+	if(split) {
+		img = toRaster(split.rs(m));
+		msk = array(0, dim(m));
+		msk[npos$neighbors] = 1;
+		if( ! is.null(col.part)){
+			msk[npos$part] = 2;
+		}
+		msk1 = which(split.rs(msk) == 1);
+		img[msk1] = col;
+		if( ! is.null(col.part)){
+			msk2 = which(split.rs(msk) == 2);
+			img[msk2] = col.part;
+		}
+	} else {
+		img = toRaster(m);
+		img[npos$neighbors] = col;
+		if( ! is.null(col.part)){
+			img[npos$part] = col.part;
+		}
 	}
 	plot.rs(img);
 }
