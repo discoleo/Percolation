@@ -21,7 +21,7 @@ server = function(input, output, session) {
 	output$txtTitleHelp = renderText("Help")
 	
 	values = reactiveValues();
-	values$mSimple = NULL;
+	values$mSimple = NULL; # Material/Grid
 	values$rSimple = NULL;
 	values$mLinear = NULL;
 	values$rLinear = NULL;
@@ -34,8 +34,7 @@ server = function(input, output, session) {
 
 	imageGeneratorSimple = reactive({
 		input$newSimple;
-		print("Se executa")
-	
+		# print("Se executa")
 		m = rgrid.unif(c(input$heightSimple, input$widthSimple));
 		values$mSimple = m;
 	})
@@ -77,6 +76,7 @@ server = function(input, output, session) {
 		m = as.grid(m, p);
 		r = flood.all(m);
 		values$rSimple= r;
+		if(nrow(m) > 120) r = split.rs(r);
 		plot.rs(r);
 	})
 
@@ -132,16 +132,19 @@ server = function(input, output, session) {
 		}
 		
 		if(is.null(r)){
-			return()
+			return();
 		}
 		id = input$idDetails;
 		if(input$typeDetails == "Channel Length") {
-			plot.rs(length.path(r, id))
+			r = length.path(r, id);
+			if(nrow(r) > 120) r = split.rs(r);
+			plot.rs(r);
 		} else if(input$typeDetails == "Border") {
 			plot.surface(r, id)
 		} else if(input$typeDetails == "Center") {
 			cp = center.percol(r, id);
 			p  = points.percol(round(cp), r);
+			if(nrow(p) > 120) p = split.rs(p);
 			plot.rs(p);
 		}
 		else {

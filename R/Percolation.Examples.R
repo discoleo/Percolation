@@ -24,7 +24,7 @@
 ####################
 ####################
 
-### helper Functions
+### Helper Functions
 
 # fast load
 source("Percolation.R")
