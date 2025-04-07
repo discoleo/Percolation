@@ -4,9 +4,39 @@ Further development has been moved to this project:
 > https://github.com/discoleo/Percolation
 
 
+To run the shiny app:
+```
+setwd(".../Percolation/R")
+source("Percolation.App.R")
+
+# Start Shiny App:
+shinyApp(ui=ui, server=server)
+```
+
+**Note:**
+- Requires Rcpp to compile some of the functions;
+
+## Example
+```
+### Basic Example:
+# - Base R, without Shiny app;
+d = c(200, 50)
+x = runif(d[1])
+pChange = 1/3
+m.cor = rgrid.correl(d, pChange = pChange)
+p = 0.53
+m = as.grid.correl(x, m.cor, p=p)
+m = flood.all(m)
+plot.rs(m)
+
+# More examples in file:
+# Percolation.Examples.R;
+```
+
 ## TODO:
 
 - clean Percolation.md;
+- split View in Shiny app (for large materials);
 
 
 ## Bibliography

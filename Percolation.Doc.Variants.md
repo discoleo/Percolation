@@ -26,7 +26,7 @@ For many of the measured parameters it is meaningful to compute:
 
 ## B. Linear Channels around a Cylinder
 
-Similar to **A** and to the **Priginal**, but encircling a cylinder:
+Similar to **A** and to the **Original**, but encircling a cylinder:
 - Inflow: can be the whole Top channel or a specified column;
 
 Variant: Continuous Case
