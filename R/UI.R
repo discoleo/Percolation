@@ -110,6 +110,10 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				column(4,
 					column(12, fluidRow(tableOutput("StatisticsBinaryCorrelated"))),
 					column(12, fluidRow(tableOutput("AreaBinaryCorrelated"))),
+					column(12,
+						tag("b", "Warning: "), "Behaves non-uniformly!",
+						"Lowering the probability of Column Change
+						may aid percolation.")
 				)
 			),
 			fluidRow(
