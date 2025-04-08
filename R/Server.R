@@ -1,15 +1,22 @@
-### Server
+##########################
+#
+# Maintainer: Leonard Mada
+#
 # Student: Adrian Ivan
 # Candidate BSc CS 2023
 # West University, Timisoara
-
+#
 # Supervisors:
 # Prof. Dr. Daniela Zaharie
 # Dr. med. Leonard Mada (Syonic SRL)
 
-# URL: https://github.com/adrian0010/Percolation
+### GitHub:
+# https://github.com/discoleo/Percolation
+# [old] https://github.com/adrian0010/Percolation
 
 # Based on Previous Projects (2020-2022)
+
+### Server
 
 server = function(input, output, session) {
 	output$txtTitleSimple = renderText("Percolation: Uniform Random Lattice")
@@ -31,7 +38,10 @@ server = function(input, output, session) {
 	values$mBinaryCorrelated = NULL;
 	values$rBinaryCorrelated = NULL;
 	# Options
-	values$opt = list(splitH = 120);
+	values$opt = list(
+		splitH = 120,
+		splitHCh  = 150,
+		Channel.H = 3);
 	
 	
 	### Grid/Material Generators
@@ -46,8 +56,7 @@ server = function(input, output, session) {
 
 	imageGeneratorLinear = reactive({
 		input$newLinear;
-		print("Se executa")
-	
+		# print("Se executa")
 		m = rgrid.channel.poisson(input$heightLinear /3, input$widthLinear, 
 			d = 1, type = input$blockTypeLinear, ppore = input$probPoreLinear, pBlock = input$probBlockLinear, val = 1.1);
 		values$mLinear = m;
@@ -83,9 +92,9 @@ server = function(input, output, session) {
 		plot.rs(r);
 	})
 
-		### Analyse
+	### Analyse
 	
-	# StatisticsSimple
+	### Statistics: Simple
 	observe({
 		m = values$rSimple;
 		if(is.null(m)){
@@ -163,8 +172,10 @@ server = function(input, output, session) {
 		m = as.grid(m, p);
 		r = flood.all(m);
 		values$rLinear = r;
-		# TODO global option
-		plot.rs(expand.channel(r, 3));
+		# Plot:
+		r = expand.channel(r, values$opt$Channel.H);
+		if(nrow(r) > values$opt$splitHCh) r = split.rs(r);
+		plot.rs(r);
 	})
 	
 	output$StatisticsLinear = renderTable({
@@ -181,29 +192,31 @@ server = function(input, output, session) {
 		areas = analyse.Area(values$rLinear);
 	})
 	
+	### Stats: Channel Length
 	output$LengthLinear = renderTable({
-	r = values$rLinear;
-	if(is.null(r)) {
-		return();
-	}
-	length = length.channel.linear(r);
-	length = merge(length, as.df.id(which.channels(r)), by = "id");
-	length = tapply(length$Len, length$Group, function(x) {
-		# Stats:
-		data.frame(Length = mean(x), Median = median(x));
-	});
-	length = lapply(names(length), function(nm) {
-		tmp = length[[nm]];
-		tmp$Group = nm;
-		return(tmp);
-	});
-	length = do.call(rbind, length);
-	length = length[c("Group", "Length", "Median")];
-	return(length);
-})
-
+		r = values$rLinear;
+		if(is.null(r)) {
+			return();
+		}
+		length = length.channel.linear(r);
+		length = merge(length, as.df.id(which.channels(r)), by = "id");
+		length = tapply(length$Len, length$Group, function(x) {
+			# Stats:
+			data.frame(Length = mean(x), Median = median(x));
+		});
+		length = lapply(names(length), function(nm) {
+			tmp = length[[nm]];
+			tmp$Group = nm;
+			return(tmp);
+		});
+		length = do.call(rbind, length);
+		length = length[c("Group", "Length", "Median")];
+		return(length);
+	})
 	
-	### Linearly Correlated Process
+	# <----- END CHANNELS ----->
+	
+	### Linearly-Correlated Process
 	output$LinearCorrelated = renderPlot({
 		imageGeneratorLinearCorrelated()
 		m = values$mLinearCorrelated;
@@ -211,9 +224,11 @@ server = function(input, output, session) {
 		m = as.grid(m, p);
 		r = flood.all(m);
 		values$rLinearCorrelated = r;
+		if(nrow(m) > values$opt$splitH) r = split.rs(r);
 		plot.rs(r);
 	})
-
+	
+	### Stats: Linearly-Correlated
 	observe({
 		m = values$rLinearCorrelated;
 		if(is.null(m)){
@@ -264,7 +279,9 @@ server = function(input, output, session) {
 		m = values$rLinear;
 		m = height.channel.all(m)
 		m[m > 1] = m[m > 1] + 2;
-		plot.rs(expand.channel(m, 3))
+		r = expand.channel(m, values$opt$Channel.H);
+		if(nrow(r) > values$opt$splitHCh) r = split.rs(r);
+		plot.rs(r);
 	})
 
 	### Help
@@ -296,9 +313,5 @@ server = function(input, output, session) {
 	observeEvent(input$Help5, {
 		checkHelp("Help5");
 	})
-	}
-
-# val.unique = unique(r[1])
-
-
+}
 

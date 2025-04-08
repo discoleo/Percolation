@@ -12,33 +12,36 @@
 
 source("Percolation.HelpUI.R")
 
+height.min = 100;
+height.max = 600;
+width.max  = 200;
 
 ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
-		tabsetPanel(
-			tabPanel("Percolation Process",
-				fluidRow(
-					column(4, textOutput("txtTitleSimple")) ),
-				fluidRow(
-					column(8, plotOutput("PercolationSimple")),
-					column(4,
-						column(12, fluidRow(tableOutput("Statistics"))),
-						column(12, fluidRow(tableOutput("Area"))),
-					)
+	tabsetPanel(
+		tabPanel("Percolation Process",
+			fluidRow(
+				column(4, textOutput("txtTitleSimple")) ),
+			fluidRow(
+				column(8, plotOutput("PercolationSimple")),
+				column(4,
+					column(12, fluidRow(tableOutput("Statistics"))),
+					column(12, fluidRow(tableOutput("Area"))),
+				)
+			),
+			fluidRow(
+				column(4,
+					sliderInput(inputId = "heightSimple", label = "Height",
+						value = 100, min = height.min, max = height.max, step = 50)
 				),
-				fluidRow(
-					column(4,
-						sliderInput(inputId = "heightSimple", label = "Height",
-							value = 100, min = 100, max = 2000, step = 50)
-					),
-					column(4,
-						sliderInput(inputId = "probSimple", label = "Probability Cutoff",
-							value = 0.5, min = 0, max = 1, step = 0.01)
-					)
-				),
+				column(4,
+					sliderInput(inputId = "probSimple", label = "Probability Cutoff",
+						value = 0.5, min = 0, max = 1, step = 0.01)
+				)
+			),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "widthSimple", label = "Width", 
-							value = 50, min = 20, max = 200, step = 10))
+							value = 50, min = 20, max = width.max, step = 10))
 				),
 				fluidRow(
 					column(4,
@@ -58,7 +61,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "heightLinearCorrelated", label = "Height",
-							value = 100, min = 40, max = 400, step = 20)
+							value = 100, min = height.min, max = height.max, step = 20)
 					),
 					column(4,
 						sliderInput(inputId = "pChangeLinearCorrelated",
@@ -73,7 +76,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "widthLinearCorrelated", label = "Width",
-							value = 50, min = 20, max = 200, step = 10)
+							value = 50, min = 20, max = width.max, step = 10)
 					),
 					column(4,
 						selectInput(inputId = "typeLinearCorrelated", label = "Type",
@@ -99,7 +102,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "heightBinaryCorrelated", label = "Height",
-							value = 100, min = 40, max = 400, step = 20)
+							value = 100, min = height.min, max = height.max, step = 20)
 					),
 					column(4,
 						sliderInput(inputId = "pChangeBinaryCorrelated", label = "Probability of Column Change",
@@ -113,7 +116,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "widthBinaryCorrelated", label = "Width",
-							value = 50, min = 20, max = 200, step = 10)
+							value = 50, min = 20, max = width.max, step = 10)
 					),
 					column(4,
 						selectInput(inputId = "typeBinaryCorrelated", label = "Type",
@@ -157,7 +160,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "heightLinear", label = "Height",
-							value = 100, min = 40, max = 400, step = 20)
+							value = 100, min = height.min, max = height.max, step = 20)
 					),
 					column(4,
 						sliderInput(inputId = "probLinear", label = "Probability Cutoff",
@@ -171,7 +174,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				fluidRow(
 					column(4,
 						sliderInput(inputId = "widthLinear", label = "Width",
-							value = 50, min = 20, max = 200, step = 10)
+							value = 50, min = 20, max = width.max, step = 10)
 					),
 					column(4,
 						selectInput(inputId = "blockTypeLinear", label = "Block Type",
@@ -184,23 +187,21 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 							value = 5, min = 0, max = 10, step = 1)
 					)
 				),
-				fluidRow(
-					column(4,
-						actionButton("newLinear", "New Material"))
-				)
-				
-			),
-			tabPanel("Channel Levels",
-				fluidRow(
-					column(4, textOutput("txtTitleLinearLevels"))
-				),
-				fluidRow(
-					column(8, plotOutput("LinearLevels"))
-				),
-				
-			),
-			tabPanel("Help",
-				uiOutput("HelpUI")
+			fluidRow(
+				column(4,
+					actionButton("newLinear", "New Material"))
 			)
+		),
+		### Stats:
+		tabPanel("Channel Levels",
+			fluidRow(
+				column(4, textOutput("txtTitleLinearLevels"))
+			),
+			fluidRow(
+				column(8, plotOutput("LinearLevels"))
+			)
+		),
+		### Help
+		tabPanel("Help", uiOutput("HelpUI") )
 	)
 )

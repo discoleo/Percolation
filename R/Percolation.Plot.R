@@ -92,10 +92,12 @@ plot.rs = function(m, main, mar, line=0.5, addBlue = NULL) {
 	par(old.par);
 	invisible();
 }
+# n = number of fragments;
+# w = width between displayed fragments;
 split.rs = function(m, n=5, from=1, max.len=5, w=10) {
-	# w = width between displayed fragments;
-	# n = number of fragments;
-	nr.tot = round(nrow(m) / n);
+	# nr.tot  = nRows per fragment;
+	# frg.tot = Total count of fragments;
+	nr.tot  = ceiling(nrow(m) / n);
 	frg.tot = ceiling(nrow(m) / nr.tot);
 	# TODO: nrow(m) %% nr.tot > 0;
 	if(from == 0) from = 1;
