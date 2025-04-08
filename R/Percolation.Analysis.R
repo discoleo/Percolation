@@ -559,7 +559,7 @@ minCut = function(m, id) {
     idE = attr(graph, "entry");
     idC = min_cut(graph, source = idE[1], target = idE[2], value.only = FALSE);
     edge = as.integer(idC$cut);
-    ids = get.edgelist(graph)[edge,];
+    ids = as_edgelist(graph)[edge,];
     idEntry = which(ids %in% idE); # Graph Entry
     if(length(idEntry) > 0) {
   	  print("Min-Cut: Graph Entry!");

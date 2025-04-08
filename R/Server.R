@@ -228,6 +228,7 @@ server = function(input, output, session) {
 		m = as.grid.correl(m$r, m$mTransitions, p);
 		r = flood.all(m);
 		values$rBinaryCorrelated = r;
+		if(nrow(m) > values$opt$splitH) r = split.rs(r);
 		plot.rs(r);
 	})
 	
