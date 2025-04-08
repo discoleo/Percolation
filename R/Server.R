@@ -192,30 +192,6 @@ server = function(input, output, session) {
 		areas = analyse.Area(values$rLinear);
 	})
 	
-	### Stats: Channel Length
-	output$LengthLinear = renderTable({
-		r = values$rLinear;
-		if(is.null(r)) {
-			return();
-		}
-		length = length.channel.linear(r);
-		length = merge(length, as.df.id(which.channels(r)), by = "id");
-		length = tapply(length$Len, length$Group, function(x) {
-			# Stats:
-			data.frame(Length = mean(x), Median = median(x));
-		});
-		length = lapply(names(length), function(nm) {
-			tmp = length[[nm]];
-			tmp$Group = nm;
-			return(tmp);
-		});
-		length = do.call(rbind, length);
-		length = length[c("Group", "Length", "Median")];
-		return(length);
-	})
-	
-	# <----- END CHANNELS ----->
-	
 	### Linearly-Correlated Process
 	output$LinearCorrelated = renderPlot({
 		imageGeneratorLinearCorrelated()
@@ -251,10 +227,11 @@ server = function(input, output, session) {
 		p = input$probBinaryCorrelated;
 		m = as.grid.correl(m$r, m$mTransitions, p);
 		r = flood.all(m);
-		values$rBinaryCorrelated= r;
+		values$rBinaryCorrelated = r;
 		plot.rs(r);
 	})
-
+	
+	### Stats: Binary-Correlated
 	observe({
 		m = values$rBinaryCorrelated;
 		if(is.null(m)){
@@ -268,7 +245,29 @@ server = function(input, output, session) {
 		output$StatisticsBinaryCorrelated = renderTable(statChannels);
 		output$AreaBinaryCorrelated = renderTable(statAreas);
 	})
-
+	
+	
+	### Stats: Channel Length
+	output$LengthLinear = renderTable({
+		r = values$rLinear;
+		if(is.null(r)) {
+			return();
+		}
+		length = length.channel.linear(r);
+		length = merge(length, as.df.id(which.channels(r)), by = "id");
+		length = tapply(length$Len, length$Group, function(x) {
+			# Stats:
+			data.frame(Length = mean(x), Median = median(x));
+		});
+		length = lapply(names(length), function(nm) {
+			tmp = length[[nm]];
+			tmp$Group = nm;
+			return(tmp);
+		});
+		length = do.call(rbind, length);
+		length = length[c("Group", "Length", "Median")];
+		return(length);
+	})
 
 	### Channel Levels
 
@@ -283,6 +282,8 @@ server = function(input, output, session) {
 		if(nrow(r) > values$opt$splitHCh) r = split.rs(r);
 		plot.rs(r);
 	})
+	
+	# <----- END CHANNELS ----->
 
 	### Help
 
