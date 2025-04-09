@@ -30,7 +30,7 @@ server = function(input, output, session) {
 	### Grid Data
 	values = reactiveValues();
 	values$mSimple = NULL; # Material/Grid
-	values$rSimple = NULL;
+	values$rSimple = NULL; # Flooded Material
 	values$mLinear = NULL;
 	values$rLinear = NULL;
 	values$mLinearCorrelated = NULL;
@@ -49,14 +49,12 @@ server = function(input, output, session) {
 	### Simple
 	imageGeneratorSimple = reactive({
 		input$newSimple;
-		# print("Se executa")
 		m = rgrid.unif(c(input$heightSimple, input$widthSimple));
 		values$mSimple = m;
 	})
-
+	
 	imageGeneratorLinear = reactive({
 		input$newLinear;
-		# print("Se executa")
 		m = rgrid.channel.poisson(input$heightLinear /3, input$widthLinear, 
 			d = 1, type = input$blockTypeLinear, ppore = input$probPoreLinear, pBlock = input$probBlockLinear, val = 1.1);
 		values$mLinear = m;
@@ -79,16 +77,37 @@ server = function(input, output, session) {
 		values$mBinaryCorrelated = list(r = col1, mTransitions = m)
 	})
 	
-
+	### Flood Fill
+	
 	### Basic Model
-	output$PercolationSimple = renderPlot({
+	floodSimple = reactive({
 		imageGeneratorSimple();
 		m = values$mSimple;
 		p = input$probSimple;
 		m = as.grid(m, p);
 		r = flood.all(m);
 		values$rSimple = r;
-		if(nrow(m) > values$opt$splitH) r = split.rs(r);
+	})
+	output$PercolationSimple = renderPlot({
+		floodSimple();
+		r = values$rSimple;
+		if(nrow(values$mSimple) > values$opt$splitH) r = split.rs(r);
+		plot.rs(r);
+	})
+	
+	### Linearly-Correlated Process
+	floodLinearCorrelated = reactive({
+		imageGeneratorLinearCorrelated()
+		m = values$mLinearCorrelated;
+		p = input$probLinearCorrelated;
+		m = as.grid(m, p);
+		r = flood.all(m);
+		values$rLinearCorrelated = r;
+	})
+	output$LinearCorrelated = renderPlot({
+		floodLinearCorrelated();
+		r = values$rLinearCorrelated;
+		if(nrow(values$mLinearCorrelated) > values$opt$splitH) r = split.rs(r);
 		plot.rs(r);
 	})
 
@@ -192,18 +211,6 @@ server = function(input, output, session) {
 		areas = analyse.Area(values$rLinear);
 	})
 	
-	### Linearly-Correlated Process
-	output$LinearCorrelated = renderPlot({
-		imageGeneratorLinearCorrelated()
-		m = values$mLinearCorrelated;
-		p = input$probLinearCorrelated;
-		m = as.grid(m, p);
-		r = flood.all(m);
-		values$rLinearCorrelated = r;
-		if(nrow(m) > values$opt$splitH) r = split.rs(r);
-		plot.rs(r);
-	})
-	
 	### Stats: Linearly-Correlated
 	observe({
 		m = values$rLinearCorrelated;
@@ -285,6 +292,19 @@ server = function(input, output, session) {
 	})
 	
 	# <----- END CHANNELS ----->
+	
+	
+	### Shuffle Colours
+	
+	observeEvent(input$shuffleSimple, {
+		values$rSimple = shuffle.colors(values$rSimple);
+	})
+	observeEvent(input$shuffleLinearCorrelated, {
+		values$rLinearCorrelated = shuffle.colors(values$rLinearCorrelated);
+	})
+	observeEvent(input$shuffleBinaryCorrelated, {
+		values$rBinaryCorrelated = shuffle.colors(values$rBinaryCorrelated);
+	})
 
 	### Help
 

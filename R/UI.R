@@ -17,6 +17,7 @@ height.max = 600;
 width.max  = 200;
 ### Strings:
 lblNew = "New Material";
+lblSchuffle = "Shuffle Colors";
 strModelTypes    = c("Simple Model", "Linearly Correlated", "Binary Correlated");
 strAnalysisTypes = c(
 	"Channel Length" = "Channel Length",
@@ -34,7 +35,7 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				column(8, plotOutput("PercolationSimple")),
 				column(4,
 					column(12, fluidRow(tableOutput("Statistics"))),
-					column(12, fluidRow(tableOutput("Area"))),
+					column(12, fluidRow(tableOutput("Area")))
 				)
 			),
 			fluidRow(
@@ -53,8 +54,9 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 						value = 50, min = 20, max = width.max, step = 10))
 			),
 			fluidRow(
-				column(4,
-					actionButton("newSimple", lblNew) )
+				column(6,
+					actionButton("newSimple", lblNew),
+					actionButton("shuffleSimple", lblSchuffle) )
 			)
 		),
 		### Material: Linearly-Correlated
@@ -97,8 +99,9 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				)
 			),
 			fluidRow(
-				column(4,
-					actionButton("newLinearCorrelated", lblNew) )
+				column(6,
+					actionButton("newLinearCorrelated", lblNew),
+					actionButton("shuffleLinearCorrelated", lblSchuffle) )
 			)
 		),
 		### Material: Binary-Correlated
@@ -145,8 +148,9 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				)
 			),
 			fluidRow(
-				column(4,
-					actionButton("newBinaryCorrelated", lblNew) )
+				column(6,
+					actionButton("newBinaryCorrelated", lblNew),
+					actionButton("shuffleBinaryCorrelated", lblSchuffle) )
 			)
 		),
 		### Stats: Details
