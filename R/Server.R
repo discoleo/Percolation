@@ -111,6 +111,22 @@ server = function(input, output, session) {
 		plot.rs(r);
 	})
 
+	### Binary Correlated Process
+	floodBinaryCorrelated = reactive({
+		imageGeneratorBinaryCorrelated();
+		m = values$mBinaryCorrelated;
+		p = input$probBinaryCorrelated;
+		m = as.grid.correl(m$r, m$mTransitions, p);
+		r = flood.all(m);
+		values$rBinaryCorrelated = r;
+	})
+	output$BinaryCorrelated = renderPlot({
+		floodBinaryCorrelated();
+		r = values$rBinaryCorrelated;
+		if(nrow(r) > values$opt$splitH) r = split.rs(r);
+		plot.rs(r);
+	})
+
 	### Analyse
 	
 	### Statistics: Simple
@@ -224,19 +240,6 @@ server = function(input, output, session) {
 		statAreas = analyse.Area(m);
 		output$StatisticsLinearCorrelated = renderTable(statChannels);
 		output$AreaLinearCorrelated = renderTable(statAreas);
-	})
-
-	### Binary Correlated 
-
-	output$BinaryCorrelated = renderPlot({
-		imageGeneratorBinaryCorrelated();
-		m = values$mBinaryCorrelated;
-		p = input$probBinaryCorrelated;
-		m = as.grid.correl(m$r, m$mTransitions, p);
-		r = flood.all(m);
-		values$rBinaryCorrelated = r;
-		if(nrow(m) > values$opt$splitH) r = split.rs(r);
-		plot.rs(r);
 	})
 	
 	### Stats: Binary-Correlated
