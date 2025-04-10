@@ -1,16 +1,18 @@
-########################
-###
-### Maintainer: Leonard Mada
-###
-### Previous work:
-### 1. BSc Adrian Ivan
-### Improved and extended the previous work
-### 2. Initial version: Leonard Mada
-### Project for students: 2020-2022
-###
-### Percolation
-###
-### draft v.0.4e
+###########################
+##
+## Percolation
+##
+## Maintainer: Leonard Mada
+##
+## Previous work:
+## 1. BSc Adrian Ivan
+## Improved and extended the previous work
+## 2. Initial version: Leonard Mada
+## Project for students: 2020-2022
+##
+##
+## draft v.0.4f
+
 
 ### Percolation
 
@@ -19,7 +21,9 @@
 #   Percolation.Examples.R;
 
 ### GitHub:
-# https://github.com/discoleo/R/blob/master/Stat/Percolation.R
+# https://github.com/discoleo/Percolation
+# [old] https://github.com/adrian0010/Percolation
+# [old] https://github.com/discoleo/R/blob/master/Stat/Percolation.R
 
 
 ####################
@@ -53,6 +57,7 @@ source("Percolation.Tools.R")
 source("Percolation.Plot.R")
 # Analysis
 source("Percolation.Analysis.R")
+source("Percolation.Analysis.Geo.R")
 
 
 ##################
@@ -292,13 +297,20 @@ rgrid.correl = function(dim, pChange=1/3, type = c("Constant", "Bernoulli")) {
 	}
 	return(m);
 }
+### Persistent Data
+# Out:
+# - Th = Threshold;
+# TODO
 
+
+# Convert Correlation => Grid
 as.grid.correl = function(x, m.cor, p, val=-1) {
 	nr = nrow(m.cor); nc = ncol(m.cor);
 	if(length(x) != nr) stop("Invalid dimensions of the carry-forward matrix!");
 	m = matrix(0, nrow=nr, ncol=nc);
 	if(nr == 0 || nc == 0) return(m);
 	m[x <= p, 1] = 1;
+	# Note: works only if val < 0;
 	as.grid0 = function(m) {
 		m[m == 0] = val;
 		m[m > 0]  = 0;
@@ -316,7 +328,7 @@ as.grid.correl = function(x, m.cor, p, val=-1) {
 	return(as.grid0(m));
 }
 
-
+# 
 rlinwalk.gen = function(n, w, d, walk=c(-1,0,1), pwalk=c(1,2,1), ppore=3,
 		first.const=TRUE, duplicate.at=NULL, val=-1) {
 	# n = no. of channels; w = width of Material;
@@ -529,50 +541,6 @@ if(TEST) {
 
 	m.fl = flood.all(m)
 	plot.rs(m.fl)
-}
-
-
-###############
-### Geo-Physics
-
-mod = function(K, ...) {
-	UseMethod("mod");
-}
-
-### Bulk Modulus
-mod.bulk = function(phi, K) {
-	# Gassman's eq:
-	# Ksat/(Kmin - Ksat) = Kdry/(Kmin - Kdry) + Kfl/(phi*(Kmin - Kfl))
-	# (K[mineral], K[dry], K[fluid])
-	if(length(K) < 3) {
-		# Kfl: use Batzle & Wang's eqs;
-	}
-	dK = (K[1] - K[2:3]);
-	Ks = K[2]/dK[2] + K[3]/(dK[3] * phi);
-	Ksat = K[1] * Ks / (Ks + 1);
-	return(Ksat);
-}
-mod.dry.bulk = function(phi, K) {
-	# Kdry = (Ksat*(phi*Kmin/Kfl + 1 - phi) - Kmin) /
-	#        (phi*Kmin/Kfl + Ksat/Kmin - 1 - phi);
-	# Ksat[initial] = rho * (vp^2 - 4/3*vs^2);
-}
-mod.fluid.bulk = function(K, p) {
-	# mixture of oil/fluids: p = proportion;
-	if(length(K) - length(p) == 1) p = c(p, 1 - sum(p));
-	1 / sum(p/K);
-}
-mod.min.bulk = function(type=c("quartz", "calcite", "dolomite", "muscovite",
-		"feldspar", "albite", "halite", "anhydrite", "pyrite", "siderite")) {
-	if(missing(type)) stop("Mineral name needed!")
-	type = pmatch(type, formals(mod.min.bulk)$type[-1]);
-	if(is.na(type)) stop("Mineral name not yet available!")
-	
-	K = c(36.6, 76.8, 94.9, 61.5, 75.6, 59.5, # albite: simulated 55;
-		24.8, 56.1, 147.4, 123.7)
-	return(K[type]);
-	# albite:
-	# https://www.ceramics-silikaty.cz/2015/pdf/2015_04_326.pdf
 }
 
 
