@@ -317,7 +317,8 @@ rgrid.correlPersist = function(dim, pChange = 1/3,
 		return(asPM(m));
 	}
 	# Values:
-	mV = matrix(runif(nr * nc), ncol = nc, nrow = nr);
+	mV = runif(nr * nc);
+	mV = matrix(mV, ncol = nc, nrow = nr);
 	if(nc == 1) {
 		m = list(m=mV, mT = NULL, Th = NULL);
 		return(asPM(m));
@@ -365,7 +366,7 @@ as.grid.persMatrix = function(m, p, pT = NULL, val = -1) {
 	}
 	return(mV);
 }
-as.grid.persMatrixInv = function(m, p, pT = NULL, val = -1) {
+as.grid.persMatrixInv = function(m, p, pT = NULL, val = -1, asOld = FALSE) {
 	mV = m$m;
 	nr = nrow(mV); nc = ncol(mV);
 	if(nr == 0 || nc == 0) return(m);
@@ -383,7 +384,13 @@ as.grid.persMatrixInv = function(m, p, pT = NULL, val = -1) {
 	if(nc == 1) return(mV);
 	# Carry-Forward:
 	mT = m$mT;
-	for(idCol in seq(nc - 1)) {
+	if(asOld) for(idCol in seq(nc - 1)) {
+		isPrev  = mT[, idCol] <= pT[idCol];
+		isBlock = mV[isPrev, idCol] == val;
+		# Invert
+		mV[isPrev, idCol + 1] = ifelse(isBlock, 0, val);
+		mV[! isPrev, idCol + 1] = mV[! isPrev, idCol];
+	} else for(idCol in seq(nc - 1)) {
 		isPrev  = mT[, idCol] <= pT[idCol];
 		isBlock = mV[isPrev, idCol] == val;
 		# Invert
@@ -410,6 +417,7 @@ as.grid.correl = function(x, m.cor, p, val = -1) {
 	tmp = m[, 1];
 	for(i in seq(2, nc)) {
 		# Note: 1 - c(0,1) = c(1,0);
+		# Remaining values are carried over from the previous column;
 		tmp[m.cor[, i]] = 1 - tmp[m.cor[, i]];
 		m[, i] = tmp;
 	}
