@@ -299,12 +299,99 @@ rgrid.correl = function(dim, pChange=1/3, type = c("Constant", "Bernoulli")) {
 }
 ### Persistent Data
 # Out:
-# - Th = Threshold;
-# TODO
-
+# - mT = Transition Matrix: cells that will inherit
+#        from previous column after applying threshold;
+# - Th = Threshold for each column;
+rgrid.correlPersist = function(dim, pChange = 1/3,
+		type = c("Constant", "Bernoulli")) {
+	type = match.arg(type);
+	nr = dim[1]; nc = dim[2];
+	asPM = function(x) {
+		# Persistence Matrix:
+		class(x) = c("persMatrix", class(x));
+		return(x);
+	}
+	if(nc == 0 || nr == 0) {
+		m = matrix(numeric(0), nrow = nr, ncol = nc);
+		m = list(m=m, mT = NULL, Th = NULL);
+		return(asPM(m));
+	}
+	# Values:
+	mV = matrix(runif(nr * nc), ncol = nc, nrow = nr);
+	if(nc == 1) {
+		m = list(m=mV, mT = NULL, Th = NULL);
+		return(asPM(m));
+	}
+	# Column Transitions: pre-Threshold
+	# 1st Column: NO changes;
+	nc = nc - 1;
+	mT = sapply(seq(nc), function(idCol) {
+		sample(seq(nr), nr, replace = FALSE);
+	})
+	# Threshold: below = cells changed in Column:
+	if(type == "Constant") {
+		nCount = round(nr * pChange);
+		nCount = rep(nCount, nc);
+		m = list(m=mV, mT=mT, Th = nCount);
+	} else {
+		nCount = rbinom(nc, nr, pChange);
+		m = list(m=mV, mT=mT, Th = nCount);
+	}
+	return(asPM(m));
+}
 
 # Convert Correlation => Grid
-as.grid.correl = function(x, m.cor, p, val=-1) {
+as.grid.persMatrix = function(m, p, pT = NULL, val = -1) {
+	mV = m$m;
+	nr = nrow(mV); nc = ncol(mV);
+	if(nr == 0 || nc == 0) return(m);
+	if(is.null(pT)) pT = m$Th;
+	LEN = length(pT);
+	if(LEN == 1) {
+		pT = rep(pT, nc - 1);
+	} else if(LEN != nc - 1) {
+		stop("Invalid length of cut-off values!");
+	}
+	# Material:
+	isBlock = mV > p;
+	mV[isBlock] = val;
+	mV[! isBlock] = 0;
+	if(nc == 1) return(mV);
+	# Carry-Forward:
+	mT = m$mT;
+	for(idCol in seq(nc - 1)) {
+		isPrev = mT[, idCol] <= pT[idCol];
+		mV[isPrev, idCol + 1] = mV[isPrev, idCol];
+	}
+	return(mV);
+}
+as.grid.persMatrixInv = function(m, p, pT = NULL, val = -1) {
+	mV = m$m;
+	nr = nrow(mV); nc = ncol(mV);
+	if(nr == 0 || nc == 0) return(m);
+	if(is.null(pT)) pT = m$Th;
+	LEN = length(pT);
+	if(LEN == 1) {
+		pT = rep(pT, nc - 1);
+	} else if(LEN != nc - 1) {
+		stop("Invalid length of cut-off values!");
+	}
+	# Material:
+	isBlock = mV > p;
+	mV[isBlock] = val;
+	mV[! isBlock] = 0;
+	if(nc == 1) return(mV);
+	# Carry-Forward:
+	mT = m$mT;
+	for(idCol in seq(nc - 1)) {
+		isPrev  = mT[, idCol] <= pT[idCol];
+		isBlock = mV[isPrev, idCol] == val;
+		# Invert
+		mV[isPrev, idCol + 1] = ifelse(isBlock, 0, val);
+	}
+	return(mV);
+}
+as.grid.correl = function(x, m.cor, p, val = -1) {
 	nr = nrow(m.cor); nc = ncol(m.cor);
 	if(length(x) != nr) stop("Invalid dimensions of the carry-forward matrix!");
 	m = matrix(0, nrow=nr, ncol=nc);
@@ -322,6 +409,7 @@ as.grid.correl = function(x, m.cor, p, val=-1) {
 	# Subsequent Columns:
 	tmp = m[, 1];
 	for(i in seq(2, nc)) {
+		# Note: 1 - c(0,1) = c(1,0);
 		tmp[m.cor[, i]] = 1 - tmp[m.cor[, i]];
 		m[, i] = tmp;
 	}

@@ -71,11 +71,21 @@ server = function(input, output, session) {
 	imageGeneratorBinaryCorrelated = reactive({
 		input$newBinaryCorrelated;
 		dim = c(input$heightBinaryCorrelated, input$widthBinaryCorrelated);
-		col1 = runif(dim[1]);
-		m = rgrid.correl(dim,
-			pChange = input$pChangeBinaryCorrelated, type = input$typeBinaryCorrelated);
-		values$mBinaryCorrelated = list(r = col1, mTransitions = m)
+		m = rgrid.correlPersist(dim,
+			pChange = input$pChangeBinaryCorrelated,
+			type = input$typeBinaryCorrelated);
+		values$mBinaryCorrelated = m;
 	})
+	# [old]
+	# imageGeneratorBinaryCorrelated = reactive({
+	#	input$newBinaryCorrelated;
+	#	dim = c(input$heightBinaryCorrelated, input$widthBinaryCorrelated);
+	#	col1 = runif(dim[1]);
+	#	m = rgrid.correl(dim,
+	#		pChange = input$pChangeBinaryCorrelated,
+	#		type = input$typeBinaryCorrelated);
+	#	values$mBinaryCorrelated = list(r = col1, mTransitions = m);
+	# })
 	
 	### Flood Fill
 	
@@ -116,10 +126,19 @@ server = function(input, output, session) {
 		imageGeneratorBinaryCorrelated();
 		m = values$mBinaryCorrelated;
 		p = input$probBinaryCorrelated;
-		m = as.grid.correl(m$r, m$mTransitions, p);
+		m = as.grid.persMatrixInv(m, p);
 		r = flood.all(m);
 		values$rBinaryCorrelated = r;
 	})
+	# [old]
+	# floodBinaryCorrelated = reactive({
+	#	imageGeneratorBinaryCorrelated();
+	#	m = values$mBinaryCorrelated;
+	#	p = input$probBinaryCorrelated;
+	#	m = as.grid.correl(m$r, m$mTransitions, p);
+	#	r = flood.all(m);
+	#	values$rBinaryCorrelated = r;
+	# })
 	output$BinaryCorrelated = renderPlot({
 		floodBinaryCorrelated();
 		r = values$rBinaryCorrelated;
