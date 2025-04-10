@@ -41,7 +41,9 @@ server = function(input, output, session) {
 	values$opt = list(
 		splitH = 120,
 		splitHCh  = 150,
-		Channel.H = 3);
+		Channel.H = 3,
+		BinaryCorr.CF = FALSE, # as old code;
+		NULL );
 	
 	
 	### Grid/Material Generators
@@ -126,19 +128,10 @@ server = function(input, output, session) {
 		imageGeneratorBinaryCorrelated();
 		m = values$mBinaryCorrelated;
 		p = input$probBinaryCorrelated;
-		m = as.grid.persMatrixInv(m, p);
+		m = as.grid.persMatrixInv(m, p, asOld = values$opt$BinaryCorr.CF);
 		r = flood.all(m);
 		values$rBinaryCorrelated = r;
 	})
-	# [old]
-	# floodBinaryCorrelated = reactive({
-	#	imageGeneratorBinaryCorrelated();
-	#	m = values$mBinaryCorrelated;
-	#	p = input$probBinaryCorrelated;
-	#	m = as.grid.correl(m$r, m$mTransitions, p);
-	#	r = flood.all(m);
-	#	values$rBinaryCorrelated = r;
-	# })
 	output$BinaryCorrelated = renderPlot({
 		floodBinaryCorrelated();
 		r = values$rBinaryCorrelated;
