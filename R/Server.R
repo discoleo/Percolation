@@ -31,7 +31,7 @@ server = function(input, output, session) {
 	values = reactiveValues();
 	values$mSimple = NULL; # Material/Grid
 	values$rSimple = NULL; # Flooded Material
-	values$mLinear = NULL;
+	values$mLinear = NULL; # Material: Linear Channels
 	values$rLinear = NULL;
 	values$mLinearCorrelated = NULL;
 	values$rLinearCorrelated = NULL;
@@ -55,6 +55,7 @@ server = function(input, output, session) {
 		values$mSimple = m;
 	})
 	
+	### Linear Channels
 	imageGeneratorLinear = reactive({
 		input$newLinear;
 		m = rgrid.channel.poisson(input$heightLinear /3, input$widthLinear, 
@@ -131,7 +132,7 @@ server = function(input, output, session) {
 
 	### Binary Correlated Process
 	floodBinaryCorrelated = reactive({
-		print("Flood")
+		# print("Flood")
 		m = values$mBinaryCorrelated;
 		if(is.null(m) || input$newBinaryCorrelated ||
 				dim.hasChanged.BinaryCorrelated(m, input)) {
@@ -140,7 +141,7 @@ server = function(input, output, session) {
 		}
 		pCh = input$pChangeBinaryCorrelated;
 		if(pCh != m$pCh) {
-			print("Update")
+			# print("Update")
 			m = update.persMatrix(m, pCh);
 			values$mBinaryCorrelated = m;
 		}
@@ -229,13 +230,22 @@ server = function(input, output, session) {
 
 
 	### Linear Channels
-	output$channelsLinear = renderPlot({
+	floodChannelsLinear = reactive({
 		imageGeneratorLinear()
 		m = values$mLinear;
 		p = input$probLinear;
 		m = as.grid(m, p);
 		r = flood.all(m);
 		values$rLinear = r;
+	})
+	output$channelsLinear = renderPlot({
+		# imageGeneratorLinear()
+		# m = values$mLinear;
+		# p = input$probLinear;
+		# m = as.grid(m, p);
+		# r = flood.all(m);
+		floodChannelsLinear();
+		r = values$rLinear;
 		# Plot:
 		r = expand.channel(r, values$opt$Channel.H);
 		if(nrow(r) > values$opt$splitHCh) r = split.rs(r);
@@ -336,6 +346,9 @@ server = function(input, output, session) {
 	})
 	observeEvent(input$shuffleBinaryCorrelated, {
 		values$rBinaryCorrelated = shuffle.colors(values$rBinaryCorrelated);
+	})
+	observeEvent(input$shuffleLinear, {
+		values$rLinear = shuffle.colors(values$rLinear);
 	})
 
 	### Help

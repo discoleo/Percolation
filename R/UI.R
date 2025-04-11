@@ -25,6 +25,8 @@ strAnalysisTypes = c(
 	"Border" = "Border",
 	"MinCut" = "MinCut", "Center" = "Center");
 
+# Colours:
+colProb = "color:#16B288;";
 
 ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 	tabsetPanel(
@@ -194,7 +196,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				),
 				column(4,
 					sliderInput(inputId = "probLinear",
-						label = "Probability Cutoff",
+						label = tag("span", c(style = colProb,
+							"Probability Cutoff")),
 						value = 0.5, min = 0, max = 1, step = 0.01)
 				),
 				column(4,
@@ -221,7 +224,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 			),
 			fluidRow(
 				column(4,
-					actionButton("newLinear", lblNew) )
+					actionButton("newLinear", lblNew),
+					actionButton("shuffleLinear", lblSchuffle) )
 			)
 		),
 		### Stats:
