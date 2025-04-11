@@ -152,8 +152,8 @@ server = function(input, output, session) {
 		#
 		statChannels = analyse.Channels(m);
 		statAreas = analyse.Area(m);
-		output$Statistics = renderTable(statChannels);
-		output$Area = renderTable(statAreas);
+		output$StatisticsSimple = renderTable(statChannels);
+		output$AreaSimple = renderTable(statAreas);
 	})
 	
 

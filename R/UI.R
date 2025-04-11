@@ -14,6 +14,7 @@ source("Percolation.HelpUI.R")
 
 height.min = 100;
 height.max = 600;
+height.val = 100; # Initial value
 width.max  = 200;
 ### Strings:
 lblNew = "New Material";
@@ -34,14 +35,15 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 			fluidRow(
 				column(8, plotOutput("PercolationSimple")),
 				column(4,
-					column(12, fluidRow(tableOutput("Statistics"))),
-					column(12, fluidRow(tableOutput("Area")))
+					column(12, fluidRow(tableOutput("StatisticsSimple"))),
+					column(12, fluidRow(tableOutput("AreaSimple")))
 				)
 			),
 			fluidRow(
 				column(4,
 					sliderInput(inputId = "heightSimple", label = "Height",
-						value = 100, min = height.min, max = height.max, step = 50)
+						min = height.min, max = height.max,
+						value = height.val, step = 20)
 				),
 				column(4,
 					sliderInput(inputId = "probSimple", label = "Probability Cutoff",
@@ -74,7 +76,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				column(4,
 					sliderInput(inputId = "heightLinearCorrelated",
 						label = "Height",
-						value = 100, min = height.min, max = height.max, step = 20)
+						min = height.min, max = height.max,
+						value = height.val, step = 20)
 				),
 				column(4,
 					sliderInput(inputId = "pChangeLinearCorrelated",
@@ -123,7 +126,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 				column(4,
 					sliderInput(inputId = "heightBinaryCorrelated",
 						label = "Height",
-						value = 100, min = height.min, max = height.max, step = 20)
+						min = height.min, max = height.max,
+						value = height.val, step = 20)
 				),
 				column(4,
 					sliderInput(inputId = "pChangeBinaryCorrelated",
@@ -185,7 +189,8 @@ ui = fluidPage("Simulation of diffusion processes", shinyjs::useShinyjs(),
 			fluidRow(
 				column(4,
 					sliderInput(inputId = "heightLinear", label = "Height",
-						value = 100, min = height.min, max = height.max, step = 20)
+						min = height.min, max = height.max,
+						value = height.val, step = 20)
 				),
 				column(4,
 					sliderInput(inputId = "probLinear",

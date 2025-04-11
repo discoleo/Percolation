@@ -34,13 +34,14 @@ helper = function(id = "Help1") {
 				to a Poisson process with λ = pChange.")),
 		
 		"Binary Correlated Model" = list(
-			txt = "Consists of a rectangular grid in which the binary state of each 
+			txt = "[Variant 0] Consists of a rectangular grid in which the binary state of each 
 				subsequent column is either the state of the previous column (open or closed) or 
 				is inverted. During inversion: an open cell becomes closed and a closed cell 
 				becomes open. The inversion is selected with a probability given by the parameter 
 				Probability of Column Change. The values in the first column follow a random 
 				uniform distribution. The probability cutoff specifies the value above which 
-				the grid points become pores and below which they become solid material.",
+				the grid points become pores and below which they become solid material.
+				[New Variant] The state is either inverted or a new random value.",
 		
 			P = c("Probability Cutoff = the value above which the grid points become pores and below which they become solid material.",
 				"Probability of Column Change = probability that the values in the subsequent column is the state of the previous column or is inverted.",
