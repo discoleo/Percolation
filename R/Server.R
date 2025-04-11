@@ -42,7 +42,7 @@ server = function(input, output, session) {
 		splitH = 120,
 		splitHCh  = 150,
 		Channel.H = 3,
-		BinaryCorr.CF = FALSE, # as old code;
+		BinaryCorr.CF = TRUE, # as old code;
 		NULL );
 	
 	
@@ -71,13 +71,19 @@ server = function(input, output, session) {
 	})
 
 	imageGeneratorBinaryCorrelated = reactive({
-		input$newBinaryCorrelated;
-		dim = c(input$heightBinaryCorrelated, input$widthBinaryCorrelated);
+		h = input$heightBinaryCorrelated;
+		w = input$widthBinaryCorrelated;
+		dim = c(h, w);
 		m = rgrid.correlPersist(dim,
-			pChange = input$pChangeBinaryCorrelated,
-			type = input$typeBinaryCorrelated);
+			pChange = 0.5, # input$pChangeBinaryCorrelated,
+			type    = input$typeBinaryCorrelated);
 		values$mBinaryCorrelated = m;
 	})
+	dim.hasChanged.BinaryCorrelated = function(m, input) {
+		if(nrow(m$m) != input$heightBinaryCorrelated) return(TRUE);
+		if(ncol(m$m) != input$widthBinaryCorrelated)  return(TRUE);
+		return(FALSE);
+	}
 	# [old]
 	# imageGeneratorBinaryCorrelated = reactive({
 	#	input$newBinaryCorrelated;
@@ -125,8 +131,19 @@ server = function(input, output, session) {
 
 	### Binary Correlated Process
 	floodBinaryCorrelated = reactive({
-		imageGeneratorBinaryCorrelated();
+		print("Flood")
 		m = values$mBinaryCorrelated;
+		if(is.null(m) || input$newBinaryCorrelated ||
+				dim.hasChanged.BinaryCorrelated(m, input)) {
+			imageGeneratorBinaryCorrelated();
+			m = values$mBinaryCorrelated;
+		}
+		pCh = input$pChangeBinaryCorrelated;
+		if(pCh != m$pCh) {
+			print("Update")
+			m = update.persMatrix(m, pCh);
+			values$mBinaryCorrelated = m;
+		}
 		p = input$probBinaryCorrelated;
 		m = as.grid.persMatrixInv(m, p, asOld = values$opt$BinaryCorr.CF);
 		r = flood.all(m);

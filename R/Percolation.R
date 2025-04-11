@@ -313,14 +313,14 @@ rgrid.correlPersist = function(dim, pChange = 1/3,
 	}
 	if(nc == 0 || nr == 0) {
 		m = matrix(numeric(0), nrow = nr, ncol = nc);
-		m = list(m=m, mT = NULL, Th = NULL);
+		m = list(m=m, mT = NULL, Th = NULL, pCh = pChange, Type = type);
 		return(asPM(m));
 	}
 	# Values:
 	mV = runif(nr * nc);
 	mV = matrix(mV, ncol = nc, nrow = nr);
+	m  = list(m = mV, mT = NULL, Th = NULL, pCh = pChange, Type = type);
 	if(nc == 1) {
-		m = list(m=mV, mT = NULL, Th = NULL);
 		return(asPM(m));
 	}
 	# Column Transitions: pre-Threshold
@@ -329,16 +329,44 @@ rgrid.correlPersist = function(dim, pChange = 1/3,
 	mT = sapply(seq(nc), function(idCol) {
 		sample(seq(nr), nr, replace = FALSE);
 	})
+	m$mT = mT;
 	# Threshold: below = cells changed in Column:
 	if(type == "Constant") {
 		nCount = round(nr * pChange);
 		nCount = rep(nCount, nc);
-		m = list(m=mV, mT=mT, Th = nCount);
 	} else {
 		nCount = rbinom(nc, nr, pChange);
-		m = list(m=mV, mT=mT, Th = nCount);
 	}
+	m$Th = nCount;
 	return(asPM(m));
+}
+# Note:
+# mT = only a random permutation, NOT a random sequence!
+# However, it's possible to have a persistent Bernoulli
+# by using a 3rd matrix(runif(nr * nc));
+update.persMatrix = function(m, pT) {
+	nc  = ncol(m$m) - 1;
+	if(nc <= 0) return(m);
+	LEN = length(pT);
+	if(LEN == 1) {
+		nr = nrow(m$m);
+		if(m$Type == "Constant") {
+			nCount = round(pT * nr);
+			nCount = rep(nCount, nc);
+		} else {
+			# Bernoulli
+			nCount = rbinom(nc, nr, pT);
+		}
+	} else if(LEN != nc) {
+		stop("Invalid length of cut-off values!");
+	} else {
+		nCount = pT; # TODO: p or Count?
+		# TODO: pT for Bernoulli;
+		pT = pT[[1]] / nrow(m$m);
+	}
+	m$pCh = pT;
+	m$Th  = nCount;
+	invisible(m);
 }
 
 # Convert Correlation => Grid
@@ -366,17 +394,11 @@ as.grid.persMatrix = function(m, p, pT = NULL, val = -1) {
 	}
 	return(mV);
 }
-as.grid.persMatrixInv = function(m, p, pT = NULL, val = -1, asOld = FALSE) {
+as.grid.persMatrixInv = function(m, p, val = -1, asOld = FALSE) {
 	mV = m$m;
 	nr = nrow(mV); nc = ncol(mV);
 	if(nr == 0 || nc == 0) return(m);
-	if(is.null(pT)) pT = m$Th;
-	LEN = length(pT);
-	if(LEN == 1) {
-		pT = rep(pT, nc - 1);
-	} else if(LEN != nc - 1) {
-		stop("Invalid length of cut-off values!");
-	}
+	pT = m$Th;
 	# Material:
 	isBlock = mV > p;
 	mV[isBlock] = val;
