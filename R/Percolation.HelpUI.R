@@ -41,7 +41,7 @@ helper = function(id = "Help1") {
 				Probability of Column Change. The values in the first column follow a random 
 				uniform distribution. The probability cutoff specifies the value above which 
 				the grid points become pores and below which they become solid material.
-				[New Variant] The state is either inverted or a new random value.",
+				[Variant] The state is either inverted or based on a new random value.",
 		
 			P = c("Probability Cutoff = the value above which the grid points become pores and below which they become solid material.",
 				"Probability of Column Change = probability that the values in the subsequent column is the state of the previous column or is inverted.",

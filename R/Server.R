@@ -71,7 +71,8 @@ server = function(input, output, session) {
 		values$mLinearCorrelated = m;
 	})
 
-	imageGeneratorBinaryCorrelated = reactive({
+	initBinaryCorrelated = reactive({
+		input$newBinaryCorrelated;
 		h = input$heightBinaryCorrelated;
 		w = input$widthBinaryCorrelated;
 		dim = c(h, w);
@@ -80,13 +81,17 @@ server = function(input, output, session) {
 			type    = input$typeBinaryCorrelated);
 		values$mBinaryCorrelated = m;
 	})
-	dim.hasChanged.BinaryCorrelated = function(m, input) {
-		if(nrow(m$m) != input$heightBinaryCorrelated) return(TRUE);
-		if(ncol(m$m) != input$widthBinaryCorrelated)  return(TRUE);
-		return(FALSE);
-	}
+	observeEvent(input$newBinaryCorrelated, {
+		initBinaryCorrelated();
+	})
+	observeEvent(input$heightBinaryCorrelated, {
+		initBinaryCorrelated();
+	})
+	observeEvent(input$widthBinaryCorrelated, {
+		initBinaryCorrelated();
+	})
 	# [old]
-	# imageGeneratorBinaryCorrelated = reactive({
+	# initBinaryCorrelated = reactive({
 	#	input$newBinaryCorrelated;
 	#	dim = c(input$heightBinaryCorrelated, input$widthBinaryCorrelated);
 	#	col1 = runif(dim[1]);
@@ -134,11 +139,11 @@ server = function(input, output, session) {
 	floodBinaryCorrelated = reactive({
 		# print("Flood")
 		m = values$mBinaryCorrelated;
-		if(is.null(m) || input$newBinaryCorrelated ||
-				dim.hasChanged.BinaryCorrelated(m, input)) {
-			imageGeneratorBinaryCorrelated();
-			m = values$mBinaryCorrelated;
+		if(is.null(m)) {
+			initBinaryCorrelated();
+			return();
 		}
+		#
 		pCh = input$pChangeBinaryCorrelated;
 		if(pCh != m$pCh) {
 			# print("Update")
@@ -239,11 +244,6 @@ server = function(input, output, session) {
 		values$rLinear = r;
 	})
 	output$channelsLinear = renderPlot({
-		# imageGeneratorLinear()
-		# m = values$mLinear;
-		# p = input$probLinear;
-		# m = as.grid(m, p);
-		# r = flood.all(m);
 		floodChannelsLinear();
 		r = values$rLinear;
 		# Plot:
