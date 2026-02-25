@@ -212,6 +212,29 @@ expand.channel = function(m, d=3, d0=1) {
 	invisible(mr);
 }
 
+##################
+
+### Conversions
+
+### Coords:
+# x = Matrix after Flood-Fill;
+# Note: Coords start at (0,0);
+as.coords.percol = function(x) {
+	nr = nrow(x);
+	nc = ncol(x);
+	if(nr == 0 || nc == 0) {
+		return(data.frame(Row = integer(0), Col = integer(0), Val = integer(0)));
+	}
+	cc = data.frame(
+		Row = rep(seq(0, nr-1), nc),
+		Col = rep(seq(0, nc-1), each = nr),
+		Val = array(x, dim = length(x)));
+	attr(cc, "dimM") = c(nr, nc);
+	class(cc) = c("coords", class(cc));
+	invisible(cc);
+}
+
+### Graph:
 as.graph.percol = function(m, id = 1) {
 	rows = nrow(m)
 	cols = ncol(m)
@@ -264,6 +287,7 @@ as.graph.percol = function(m, id = 1) {
 
 }
 
+### Neighbors:
 which.neighbors = function(m, npos, val = -1) {
 	if(length(npos) == 0) return(integer(0));
 	npos = unique(npos);
@@ -296,6 +320,44 @@ which.neighbors = function(m, npos, val = -1) {
 	return (tmp);
 }
 
+# Based on Coords:
+which.neighbors.coords = function(x, id, unique = FALSE) {
+	p  = x[x$Val == id, c("Row", "Col"), drop = FALSE];
+	xy = attr(x, "dimM");
+	nr = xy[1]; nc = xy[2];
+	### Neighbors:
+	tmp = p[p$Col > 1, , drop = FALSE];
+	Np  = (tmp$Col * (nr-1) + tmp$Row + 1);
+	# Previous/Next Row:
+	tmp = p[p$Row > 0, , drop = FALSE];
+	Np  = c(Np, (tmp$Col * nr + tmp$Row)); # + 1 - 1;
+	tmp = p[p$Row < nr - 1, , drop = FALSE];
+	Np  = c(Np, (tmp$Col * nr + tmp$Row + 2));
+	# Next Col:
+	tmp = p[p$Col < nc - 1, , drop = FALSE];
+	Np  = c(Np, (tmp$Col * (nr+1) + tmp$Row + 1));
+	if(unique) {
+		Np = unique(Np);
+	}
+	Np = sort(Np);
+	invisible(Np);
+}
+### Contact Surface:
+# - with the Solid Material;
+which.neighborsM.coords = function(x, id, unique = FALSE, val = -1) {
+	Np = which.neighbors.coords(x, id=id, unique=unique);
+	vN = x$Val[Np]
+	Np = Np[vN == val];
+	return(Np);
+}
+len.neighborsM.coords = function(x, id, unique = FALSE, val = -1) {
+	Np = which.neighbors.coords(x, id=id, unique=unique);
+	vN = x$Val[Np]
+	len = sum(vN == val);
+	return(len);
+}
+
+### Other
 prune.part = function(x, id) {
 	idE = which(x %in% id);
 	x = x[ - idE];

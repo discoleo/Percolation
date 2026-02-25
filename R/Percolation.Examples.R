@@ -54,6 +54,17 @@ quantile(m.rev, c(0.1, 0.25, 0.5, 0.75, 0.9))
 ### Flood Fill
 m = flood.all(m)
 
+# Percolating Channels:
+id = which.percol(m)
+print(id)
+
+# Contact Surface:
+nn = as.coords.percol(m)
+sa = len.neighborsM.coords(nn, id[1])
+print(sa) # "Surface Area"
+
+
+# Varia: Explore Channels
 m[1:10, 1:10]
 
 table(m)
