@@ -21,6 +21,17 @@
 # source("Percolation.Plot.R")
 
 
+# Number of Fragments:
+as.nSplit = function(x, n = 5) {
+	if(! is.logical(x)) {
+		if(x > 1) {
+			n = x;
+			x = TRUE;
+		} else x = FALSE;
+	}
+	return(list(split = x, n=n));
+}
+
 ### Raster
 
 as.raster.percol = function(x, showVal=0, isBlue = NULL, rgb.cut = 160/255) {
@@ -130,16 +141,15 @@ split.rs = function(m, n=5, from=1, max.len=5, w=10) {
 plot.surface = function(m, id, col = "#1624C0", split = FALSE) {
 	csf = as.surface.contact(m, id = id);
 	# Number of Fragments:
-	if(is.logical(split)) {
-		if(split) n.split = 5;
-	} else if(split > 1) { n.split = split; }
-	else { split = FALSE; }
+	nSpl  = as.nSplit(split);
+	split = nSpl$split;
+	nSpl  = nSpl$n;
 	#
 	if(split) {
-		img = toRaster(split.rs(m, n = n.split));
+		img = toRaster(split.rs(m, n = nSpl));
 		msk = array(0, dim(m));
 		msk[csf] = 1;
-		msk = which(split.rs(msk, n = n.split) == 1);
+		msk = which(split.rs(msk, n = nSpl) == 1);
 		img[msk] = col;
 	} else {
 		img = toRaster(m);
@@ -150,17 +160,22 @@ plot.surface = function(m, id, col = "#1624C0", split = FALSE) {
 
 plot.minCut = function(m, id, col = "#1624C0", col.part = "#F0F000", split = FALSE) {
 	npos = minCut(m, id);
+	# n = No. of Fragments
+	nSpl  = as.nSplit(split);
+	split = nSpl$split;
+	nSpl  = nSpl$n;
 	if(split) {
-		img = toRaster(split.rs(m));
+		img = toRaster(split.rs(m, n = nSpl));
 		msk = array(0, dim(m));
 		msk[npos$neighbors] = 1;
 		if( ! is.null(col.part)){
 			msk[npos$part] = 2;
 		}
-		msk1 = which(split.rs(msk) == 1);
+		sMsk = split.rs(msk, n = nSpl);
+		msk1 = which(sMsk == 1);
 		img[msk1] = col;
 		if( ! is.null(col.part)){
-			msk2 = which(split.rs(msk) == 2);
+			msk2 = which(sMsk == 2);
 			img[msk2] = col.part;
 		}
 	} else {
@@ -188,11 +203,14 @@ points.percol = function(xy, m, col = "#0064F0", fill=TRUE,
 	}
 	p = expand.grid(xy[1] + dx, xy[2] + dy);
 	# Raster:
+	nSpl  = as.nSplit(split);
+	split = nSpl$split;
+	nSpl  = nSpl$n;
 	if(split) {
-		r   = toRaster(split.rs(m));
+		r   = toRaster(split.rs(m, n = nSpl));
 		msk = array(0, dim(m));
 		msk[p[,1], p[,2]] = 1;
-		msk = which(split.rs(msk) == 1);
+		msk = which(split.rs(msk, n = nSpl) == 1);
 		r[msk] = col;
 	} else {
 		r = toRaster(m);

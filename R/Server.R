@@ -221,20 +221,20 @@ server = function(input, output, session) {
 		}
 		id = input$idDetails;
 		doSplit = nrow(r) > values$opt$splitH;
+		nSplit  = if(doSplit) values$nSplit else FALSE;
 		if(input$typeDetails == "Channel Length") {
 			r = length.path(r, id);
-			if(doSplit) r = split.rs(r, n = values$nSplit);
+			if(doSplit) r = split.rs(r, n = nSplit);
 			plot.rs(r);
 		} else if(input$typeDetails == "Border") {
-			nSplit = if(doSplit) values$nSplit else FALSE;
 			plot.surface(r, id, split = nSplit);
 		} else if(input$typeDetails == "Center") {
 			cp = center.percol(r, id);
-			p  = points.percol(round(cp), r, split = doSplit);
+			p  = points.percol(round(cp), r, split = nSplit);
 			plot.rs(p);
 		}
 		else {
-			plot.minCut(r, id, split = doSplit);
+			plot.minCut(r, id, split = nSplit);
 		}
 	})
 
