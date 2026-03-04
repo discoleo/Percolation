@@ -94,6 +94,7 @@ plot.rs = function(m, main, mar, line=0.5, addBlue = NULL) {
 }
 # n = number of fragments;
 # w = width between displayed fragments;
+# from = 1st fragment to include;
 split.rs = function(m, n=5, from=1, max.len=5, w=10) {
 	# nr.tot  = nRows per fragment;
 	# frg.tot = Total count of fragments;
@@ -128,11 +129,17 @@ split.rs = function(m, n=5, from=1, max.len=5, w=10) {
 # Plot border around Channel
 plot.surface = function(m, id, col = "#1624C0", split = FALSE) {
 	csf = as.surface.contact(m, id = id);
+	# Number of Fragments:
+	if(is.logical(split)) {
+		if(split) n.split = 5;
+	} else if(split > 1) { n.split = split; }
+	else { split = FALSE; }
+	#
 	if(split) {
-		img = toRaster(split.rs(m));
+		img = toRaster(split.rs(m, n = n.split));
 		msk = array(0, dim(m));
 		msk[csf] = 1;
-		msk = which(split.rs(msk) == 1);
+		msk = which(split.rs(msk, n = n.split) == 1);
 		img[msk] = col;
 	} else {
 		img = toRaster(m);

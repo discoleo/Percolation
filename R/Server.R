@@ -37,6 +37,7 @@ server = function(input, output, session) {
 	values$rLinearCorrelated = NULL;
 	values$mBinaryCorrelated = NULL;
 	values$rBinaryCorrelated = NULL;
+	values$nSplit = 3; # Number of Fragments
 	# Options
 	values$opt = list(
 		splitH = 120,
@@ -115,7 +116,8 @@ server = function(input, output, session) {
 	output$PercolationSimple = renderPlot({
 		floodSimple();
 		r = values$rSimple;
-		if(nrow(values$mSimple) > values$opt$splitH) r = split.rs(r);
+		if(nrow(values$mSimple) > values$opt$splitH)
+			r = split.rs(r, n = values$nSplit);
 		plot.rs(r);
 	})
 	
@@ -131,7 +133,8 @@ server = function(input, output, session) {
 	output$LinearCorrelated = renderPlot({
 		floodLinearCorrelated();
 		r = values$rLinearCorrelated;
-		if(nrow(values$mLinearCorrelated) > values$opt$splitH) r = split.rs(r);
+		if(nrow(values$mLinearCorrelated) > values$opt$splitH)
+			r = split.rs(r, n = values$nSplit);
 		plot.rs(r);
 	})
 
@@ -158,7 +161,8 @@ server = function(input, output, session) {
 	output$BinaryCorrelated = renderPlot({
 		floodBinaryCorrelated();
 		r = values$rBinaryCorrelated;
-		if(nrow(r) > values$opt$splitH) r = split.rs(r);
+		if(nrow(r) > values$opt$splitH)
+			r = split.rs(r, n = values$nSplit);
 		plot.rs(r);
 	})
 
@@ -219,10 +223,11 @@ server = function(input, output, session) {
 		doSplit = nrow(r) > values$opt$splitH;
 		if(input$typeDetails == "Channel Length") {
 			r = length.path(r, id);
-			if(doSplit) r = split.rs(r);
+			if(doSplit) r = split.rs(r, n = values$nSplit);
 			plot.rs(r);
 		} else if(input$typeDetails == "Border") {
-			plot.surface(r, id, split = doSplit);
+			nSplit = if(doSplit) values$nSplit else FALSE;
+			plot.surface(r, id, split = nSplit);
 		} else if(input$typeDetails == "Center") {
 			cp = center.percol(r, id);
 			p  = points.percol(round(cp), r, split = doSplit);
